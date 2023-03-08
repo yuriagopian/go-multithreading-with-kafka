@@ -5,7 +5,7 @@ import ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 func Consume(topics []string, servers string, msgChan chan *ckafka.Message) {
 	kafkaConsumer, err := ckafka.NewConsumer(&ckafka.ConfigMap{
 		"bootstrap.servers": servers,
-		"group,id":          "goapp",
+		"group.id":          "goapp",
 		"auto.offset.reset": "earliest",
 	})
 

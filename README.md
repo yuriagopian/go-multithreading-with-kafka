@@ -1,1 +1,5 @@
-# go-visual-computing-with-open-cv
+# go-multithreading-with-kafka
+
+docker-compose up -d
+
+docker-compose exec goapp bash

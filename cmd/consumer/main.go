@@ -10,6 +10,9 @@ import (
 	"github.com/devfullcycle/gointesivo2/internal/infra/database"
 	"github.com/devfullcycle/gointesivo2/internal/usecase"
 	"github.com/devfullcycle/gointesivo2/pkg/kafka"
+
+	// sqlite3 driver
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -23,10 +26,12 @@ func main() {
 	repository := database.NewOrderRepository(db)
 
 	usecase := usecase.CalculateFinalPrice{OrderRepository: repository}
-	msgChanKafka := make(chan *ckafka.Message)
 
+	msgChanKafka := make(chan *ckafka.Message)
 	topics := []string{"orders"}
 	servers := "host.docker.internal:9094"
+
+	fmt.Println("Kafka consumer has started")
 
 	// Consumindo os dados do kafka em uma outra thread
 	go kafka.Consume(topics, servers, msgChanKafka)
@@ -36,6 +41,7 @@ func main() {
 }
 
 func kafkaWorker(msgChan chan *ckafka.Message, uc usecase.CalculateFinalPrice) {
+	fmt.Println("Kafka worker has started")
 	for msg := range msgChan {
 		var OrderInputDto usecase.OrderInputDTO
 		err := json.Unmarshal(msg.Value, &OrderInputDto)
