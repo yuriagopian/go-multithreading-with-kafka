@@ -51,9 +51,11 @@ func kafkaWorker(msgChan chan *ckafka.Message, uc usecase.CalculateFinalPrice) {
 		outputDto, err := uc.Execute(OrderInputDto)
 
 		if err != nil {
-			panic(err)
+			fmt.Println("An Erro has occured", err)
+			// panic(err)
+		} else {
+			fmt.Printf("Kafka has processed order %s\n", outputDto.ID)
 		}
 
-		fmt.Printf("Kafka has processed order %s\n", outputDto.ID)
 	}
 }

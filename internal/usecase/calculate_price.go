@@ -1,6 +1,10 @@
 package usecase
 
-import "github.com/devfullcycle/gointesivo2/internal/entity"
+import (
+	"fmt"
+
+	"github.com/devfullcycle/gointesivo2/internal/entity"
+)
 
 type OrderInputDTO struct {
 	ID    string
@@ -20,6 +24,8 @@ type CalculateFinalPrice struct {
 }
 
 func (c *CalculateFinalPrice) Execute(input OrderInputDTO) (*OrderOutPuDTO, error) {
+
+	fmt.Println("Processing order", input.ID)
 	order, err := entity.NewOrder(input.ID, input.Price, input.Tax)
 
 	if err != nil {
