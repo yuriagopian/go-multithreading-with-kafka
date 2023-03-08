@@ -27,7 +27,12 @@ func main() {
 
 	topics := []string{"orders"}
 	servers := "host.docker.internal:9094"
+
+	// Consumindo os dados do kafka em uma outra thread
 	go kafka.Consume(topics, servers, msgChanKafka)
+
+	// Executa o worker do kafka
+	kafkaWorker(msgChanKafka, usecase)
 }
 
 func kafkaWorker(msgChan chan *ckafka.Message, uc usecase.CalculateFinalPrice) {
