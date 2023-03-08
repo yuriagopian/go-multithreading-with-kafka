@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
 
 	"github.com/devfullcycle/gointesivo2/internal/infra/database"
 	"github.com/devfullcycle/gointesivo2/internal/usecase"
@@ -18,4 +20,23 @@ func main() {
 	repository := database.NewOrderRepository(db)
 
 	usecase := usecase.CalculateFinalPrice{OrderRepository: repository}
+
+	msgChanKafka := make(chan *ckafka.Message)
+}
+
+func kafkaWorker(msgChan chan *ckafka.Message, uc usecase.CalculateFinalPrice) {
+	for msg := range msgChan {
+		var OrderInputDto usecase.OrderInputDTO
+		err := json.Unmarshal(msg.Value, &OrderInputDto)
+		if err != nil {
+			panic(err)
+		}
+		outputDto, err := uc.Execute(OrderInputDto)
+
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("Kafka has processed order %s\n", outputDto.ID)
+	}
 }
