@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
+
 	"github.com/devfullcycle/gointesivo2/internal/infra/database"
 	"github.com/devfullcycle/gointesivo2/internal/usecase"
 )
