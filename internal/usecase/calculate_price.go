@@ -43,5 +43,4 @@ func (c *CalculateFinalPrice) Execute(input OrderInputDTO) (*OrderOutPuDTO, erro
 		Tax:        order.Tax,
 		FinalPrice: order.FinalPrice,
 	}, nil
-
 }
