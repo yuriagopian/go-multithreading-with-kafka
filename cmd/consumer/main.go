@@ -9,6 +9,7 @@ import (
 
 	"github.com/devfullcycle/gointesivo2/internal/infra/database"
 	"github.com/devfullcycle/gointesivo2/internal/usecase"
+	"github.com/devfullcycle/gointesivo2/pkg/kafka"
 )
 
 func main() {
@@ -22,8 +23,11 @@ func main() {
 	repository := database.NewOrderRepository(db)
 
 	usecase := usecase.CalculateFinalPrice{OrderRepository: repository}
-
 	msgChanKafka := make(chan *ckafka.Message)
+
+	topics := []string{"orders"}
+	servers := "host.docker.internal:9094"
+	go kafka.Consume(topics, servers, msgChanKafka)
 }
 
 func kafkaWorker(msgChan chan *ckafka.Message, uc usecase.CalculateFinalPrice) {
