@@ -13,4 +13,9 @@ func Consume(topics []string, servers string, msgChan chan *ckafka.Message) {
 		panic(err)
 	}
 
+	err = kafkaConsumer.SubscribeTopics(topics, nil)
+
+	if err != nil {
+		panic(err)
+	}
 }
