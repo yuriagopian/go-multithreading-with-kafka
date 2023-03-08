@@ -1,0 +1,34 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func task(name string) {
+	for i := 0; i < 10; i++ {
+		fmt.Println(name, ":", i)
+		time.Sleep(time.Second)
+	}
+}
+
+func main() {
+	channel := make(chan int, 2)
+	go publish(channel)
+	go reader(channel)
+	time.Sleep(time.Second * 5)
+
+}
+func reader(channel chan int) {
+	for value := range channel {
+		fmt.Println(value)
+	}
+}
+
+func publish(ch chan int) {
+	for i := 0; i < 20; i++ {
+		ch <- i
+	}
+
+	close(ch)
+}
