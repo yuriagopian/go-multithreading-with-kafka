@@ -11,6 +11,7 @@ import (
 	"github.com/devfullcycle/gointesivo2/internal/usecase"
 	"github.com/devfullcycle/gointesivo2/pkg/kafka"
 	"github.com/devfullcycle/gointesivo2/pkg/rabbitmq"
+	amp "github.com/rabbitmq/amqp091-go"
 
 	// sqlite3 driver
 	_ "github.com/mattn/go-sqlite3"
@@ -44,7 +45,8 @@ func main() {
 		panic(err)
 	}
 	defer ch.Close()
-	msgRabbitmqChannel := make(chan amqp.Delivery)
+
+	msgRabbitmqChannel := make(chan amp.Delivery)
 	go rabbitmq.Consume(ch, msgRabbitmqChannel)
 	rabbitmqWorker(msgRabbitmqChannel, usecase)
 }
@@ -70,7 +72,7 @@ func kafkaWorker(msgChan chan *ckafka.Message, uc usecase.CalculateFinalPrice) {
 	}
 }
 
-func rabbitmqWorker(msgChan chan amqp.Delivery, uc usecase.CalculateFinalPrice) {
+func rabbitmqWorker(msgChan chan amp.Delivery, uc usecase.CalculateFinalPrice) {
 	fmt.Println("Rabbitmq worker has started")
 	for msg := range msgChan {
 		var OrderInputDTO usecase.OrderInputDTO
