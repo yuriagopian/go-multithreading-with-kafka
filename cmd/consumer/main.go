@@ -10,6 +10,7 @@ import (
 	"github.com/devfullcycle/gointesivo2/internal/infra/database"
 	"github.com/devfullcycle/gointesivo2/internal/usecase"
 	"github.com/devfullcycle/gointesivo2/pkg/kafka"
+	"github.com/devfullcycle/gointesivo2/pkg/rabbitmq"
 
 	// sqlite3 driver
 	_ "github.com/mattn/go-sqlite3"
@@ -38,6 +39,14 @@ func main() {
 
 	// Executa o worker do kafka
 	kafkaWorker(msgChanKafka, usecase)
+	ch, err := rabbitmq.OpenChannel()
+	if err != nil {
+		panic(err)
+	}
+	defer ch.Close()
+	msgRabbitmqChannel := make(chan amqp.Delivery)
+	go rabbitmq.Consume(ch, msgRabbitmqChannel)
+	rabbitmqWorker(msgRabbitmqChannel, usecase)
 }
 
 func kafkaWorker(msgChan chan *ckafka.Message, uc usecase.CalculateFinalPrice) {
@@ -58,5 +67,22 @@ func kafkaWorker(msgChan chan *ckafka.Message, uc usecase.CalculateFinalPrice) {
 			fmt.Printf("Kafka has processed order %s\n", outputDto.ID)
 		}
 
+	}
+}
+
+func rabbitmqWorker(msgChan chan amqp.Delivery, uc usecase.CalculateFinalPrice) {
+	fmt.Println("Rabbitmq worker has started")
+	for msg := range msgChan {
+		var OrderInputDTO usecase.OrderInputDTO
+		err := json.Unmarshal(msg.Body, &OrderInputDTO)
+		if err != nil {
+			panic(err)
+		}
+		outputDto, err := uc.Execute(OrderInputDTO)
+		if err != nil {
+			panic(err)
+		}
+		msg.Ack(false)
+		fmt.Printf("Rabbitmq has processed order %s\n", outputDto.ID)
 	}
 }
