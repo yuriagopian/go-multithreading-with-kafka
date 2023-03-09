@@ -39,7 +39,7 @@ func main() {
 	go kafka.Consume(topics, servers, msgChanKafka)
 
 	// Executa o worker do kafka
-	kafkaWorker(msgChanKafka, usecase)
+	go kafkaWorker(msgChanKafka, usecase)
 	ch, err := rabbitmq.OpenChannel()
 	if err != nil {
 		panic(err)
